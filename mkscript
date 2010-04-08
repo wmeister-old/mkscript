@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# mkscript - creates a *somewhat* bare script file
+#
+#	Usage: mkscript {bash|perl|ruby|sh} script_name
+ 
+# Modify the following binary paths if needed:
+bash_bin=/bin/bash
+perl_bin=/usr/bin/perl
+ruby_bin=/usr/bin/ruby
+sh_bin=/bin/sh
+
+types='bash|perl|ruby|sh'
+
+usage() {
+	echo "Usage: `basename $0` {$types} script_name [author] [description]"
+	[ $1 -eq 1 ] && exit 64 # command line usage error
+}
+
+[ "X$1" = "X" ] && usage 1
+[ "X$2" = "X" ] && usage 1
+[ -e $2 ] && echo "File already exists: $2" && exit 73
+[ $1 = "1" ] && usage 1
+[ `echo -n $1 | sed -r "s/^($types)$/1/"` = "1" ] || usage 1
+
+script_type=$1
+script_name=$2
+script_auth=$3
+script_desc=$4
+
+if [ $script_type = 'bash' ]; then
+	bin=$bash_bin
+elif [ $script_type = 'perl' ]; then
+	bin=$perl_bin
+elif [ $script_type = 'ruby' ]; then
+	bin=$ruby_bin
+elif [ $script_type = 'sh' ]; then
+	bin=$sh_bin
+fi
+
+summary=$script_name
+[ "X$script_desc" != "X" ] &&	summary="$summary - $script_desc"
+
+creation="Created on `date`"
+if [ "X$script_auth" != "X" ]; then
+	creation="$creation by $script_auth."
+else
+	creation="$creation."
+fi
+
+echo -e "#!$bin\n#\n# $summary\n# $creation\n\n\n\n" > $script_name
+exit 0
+
